@@ -15,6 +15,7 @@ public class House extends Estate {
 		this.setStreet(e.getStreet());
 		this.setStreetNumber(e.getStreetNumber());
 		this.setSquareArea(e.getSquareArea());
+		this.setAgentId(e.getAgentId());
 	}
 
 	private int			floors;

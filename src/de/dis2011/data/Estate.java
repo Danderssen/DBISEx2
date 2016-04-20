@@ -6,6 +6,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import de.dis2011.FormUtil;
+
 public class Estate {
 	private int 	id = -1;
 	private String 	city;
@@ -13,6 +15,7 @@ public class Estate {
 	private String 	street;
 	private int 	streetNumber;
 	private int		squareArea;
+	private int		agentId;
 	
 	public int getId() {
 		return id;
@@ -61,7 +64,7 @@ public class Estate {
 			if (getId() == -1) {
 				// Achtung, hier wird noch ein Parameter mitgegeben,
 				// damit spC$ter generierte IDs zurC<ckgeliefert werden!
-				String insertSQL = "INSERT INTO ESTATE(city, postal_code, street, street_number, square_area) VALUES (?, ?, ?, ?, ?)";
+				String insertSQL = "INSERT INTO ESTATE(city, postal_code, street, street_number, square_area, agent_id) VALUES (?, ?, ?, ?, ?, ?)";
 
 				PreparedStatement pstmt = con.prepareStatement(insertSQL,
 						Statement.RETURN_GENERATED_KEYS);
@@ -72,6 +75,7 @@ public class Estate {
 				pstmt.setString(3, getStreet());
 				pstmt.setInt(4, getStreetNumber());
 				pstmt.setInt(5, getSquareArea());
+				pstmt.setInt(6, getAgentId());
 				pstmt.executeUpdate();
 
 				// Hole die Id des engefC<gten Datensatzes
@@ -84,7 +88,7 @@ public class Estate {
 				pstmt.close();
 			} else {
 				// Falls schon eine ID vorhanden ist, mache ein Update...
-				String updateSQL = "UPDATE ESTATE SET city = ?, postal_code = ?, street = ?, street_number = ?, square_area = ? WHERE id = ?";
+				String updateSQL = "UPDATE ESTATE SET city = ?, postal_code = ?, street = ?, street_number = ?, square_area = ?, agent_id = ? WHERE id = ?";
 				PreparedStatement pstmt = con.prepareStatement(updateSQL);
 
 				// Setze Anfrage Parameter
@@ -94,6 +98,7 @@ public class Estate {
 				pstmt.setInt(4, getStreetNumber());
 				pstmt.setInt(5, getSquareArea());
 				pstmt.setInt(6, getId());
+				pstmt.setInt(7, getAgentId());
 				pstmt.executeUpdate();
 
 				pstmt.close();
@@ -140,6 +145,7 @@ public class Estate {
 				ts.setStreet(rs.getString("street"));
 				ts.setStreetNumber(rs.getInt("street_number"));
 				ts.setSquareArea(rs.getInt("square_area"));
+				ts.setAgentId(rs.getInt("agent_id"));
 
 				rs.close();
 				pstmt.close();
@@ -149,6 +155,23 @@ public class Estate {
 			e.printStackTrace();
 		}
 		return null;
+	}
+	public static Estate EstateFromInput(int agentID)
+	{
+		Estate e = new Estate();
+		e.setCity(FormUtil.readString("City"));
+		e.setPostalCode(FormUtil.readInt("PostalCode"));
+		e.setStreet(FormUtil.readString("Street"));
+		e.setStreetNumber(FormUtil.readInt("StreetNumber"));
+		e.setSquareArea(FormUtil.readInt("SquareArea"));
+		e.setAgentId(agentID);
+		return e;
+	}
+	public int getAgentId() {
+		return agentId;
+	}
+	public void setAgentId(int agentId) {
+		this.agentId = agentId;
 	}
 
 }

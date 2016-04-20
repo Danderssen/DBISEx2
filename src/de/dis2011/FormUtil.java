@@ -49,4 +49,33 @@ public class FormUtil {
 		
 		return ret;
 	}
+	
+	public static float readFloat(String label) {
+		float ret = 0;
+		boolean finished = false;
+
+		while(!finished) {
+			String line = readString(label);
+			
+			try {
+				ret = Float.parseFloat(line);
+				finished = true;
+			} catch (NumberFormatException e) {
+				System.err.println("Ungültige Eingabe: Bitte geben Sie eine Zahl an!");
+			}
+		}
+		
+		return ret;
+	}
+	public static boolean readBool(String label)
+	{
+		String line = "";
+		while(!line.equalsIgnoreCase("y") && !line.equalsIgnoreCase("n")) {
+			line = readString(label + "? [y|n]");
+		}
+		if (line.equalsIgnoreCase("y"))
+			return true;
+		else
+			return false;
+	}
 }

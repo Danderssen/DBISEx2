@@ -4,6 +4,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import de.dis2011.data.Apartment;
+import de.dis2011.data.Estate;
+import de.dis2011.data.House;
 import de.dis2011.data.Makler;
 
 /**
@@ -132,7 +135,8 @@ public class Main {
 			System.out.println("Wrong password ");
 			return;
 		}
-
+		int agentID = m.getId();
+		
 		final int NEW_ESTATE = 0;
 		final int DELETE_ESTATE = 1;
 		final int EDIT_ESTATE = 2;
@@ -152,13 +156,13 @@ public class Main {
 			
 			switch(response) {
 			case NEW_ESTATE:
-					newEstate();
+					newEstate(agentID);
 					break;
 			case DELETE_ESTATE:
-					deleteEstate();
+			//		deleteEstate();
 					break;
 			case EDIT_ESTATE:
-					editEstate();
+			//		editEstate();
 					break;
 			case BACK:
 					return;
@@ -180,6 +184,58 @@ public class Main {
 		m.save();
 		
 		System.out.println("Makler mit der ID "+m.getId()+" wurde erzeugt.");
+	}
+	
+	public static void newEstate(int agentID) {
+		final int NEW_HOUSE = 0;
+		final int NEW_APARTMENT = 1;
+		final int BACK = 2;
+		Menu estateMenu = new Menu("New Estate");
+		estateMenu.addEntry("New House", NEW_HOUSE);
+		estateMenu.addEntry("New Apartment", NEW_APARTMENT);
+		estateMenu.addEntry("Back to main menu", BACK);
+
+		//Verarbeite Eingabe
+		while (true) {
+			int response = estateMenu.show();
+
+			switch (response) {
+			case NEW_HOUSE:
+				newHouse(agentID);
+				// newEstate();
+		//		System.out.println("Estate with ID " + e.getId() + " was created.");
+
+				break;
+			case NEW_APARTMENT:
+				newApartment(agentID);
+				break;
+			case BACK:
+				return;
+			}
+		}
+		
+
+		
+	}
+	public static void newHouse(int agentID) {
+		Estate e = Estate.EstateFromInput(agentID);
+		House h = new House(e);
+		h.setFloors(FormUtil.readInt("Floors"));
+		h.setPrice(FormUtil.readInt("Price"));
+		h.setGarden(FormUtil.readBool("Garden"));
+		h.save();
+		
+	}
+	public static void newApartment(int agentID) {
+		Estate e = Estate.EstateFromInput(agentID);
+		Apartment a = new Apartment(e);
+		a.setFloor(FormUtil.readInt("Floor"));
+		a.setRent(FormUtil.readInt("Rent"));
+		a.setRooms(FormUtil.readFloat("Rooms"));
+		a.setBalcony(FormUtil.readBool("Balcony"));
+		a.setKitchen(FormUtil.readBool("Kitchen"));
+		a.save();
+		
 	}
 	public static void deleteMakler() {
 		int id = -1;
