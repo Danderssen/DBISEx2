@@ -1,0 +1,99 @@
+CREATE TABLE Estate_Agent (
+Name 	VARCHAR(50),
+Address 	VARCHAR(70),
+Login	VARCHAR(20) UNIQUE NOT NULL,
+Password	VARCHAR(20),
+ID		INTEGER GENERATED ALWAYS AS IDENTITY,
+PRIMARY KEY(ID)
+);
+
+CREATE TABLE Person (
+First_Name 	VARCHAR(50),
+Name		 	VARCHAR(50),
+Address 		VARCHAR(70),
+ID			INTEGER GENERATED ALWAYS AS IDENTITY,
+PRIMARY KEY(ID)
+);
+
+INSERT INTO Person(First_Name, Name, Address) VALUES('Hans', 'Mueller', 'Klostergasse 8');
+
+CREATE TABLE Estate (
+	ID			INTEGER GENERATED ALWAYS AS IDENTITY,
+	City			VARCHAR(30),
+	Postal_Code	INTEGER,
+	Street		VARCHAR(70),
+	Street_Number	INTEGER,
+	Square_Area	INTEGER,
+	PRIMARY KEY(ID),
+	Agent_ID		INTEGER NOT NULL,
+	FOREIGN KEY (Agent_ID) REFERENCES Estate_Agent(ID)
+);
+
+CREATE TABLE Apartment(
+	ID		INTEGER NOT NULL,
+	Floor	INTEGER,
+	Rent		INTEGER,
+	Rooms	REAL,
+	Balcony	SMALLINT,
+	Kitchen	SMALLINT,
+	PRIMARY KEY(ID),
+	FOREIGN KEY (ID) REFERENCES Estate(ID)
+);
+
+CREATE TABLE House(
+	ID		INTEGER NOT NULL,
+	Floors	INTEGER,
+	Price	INTEGER,
+	Garden	SMALLINT,
+	PRIMARY KEY(ID),
+	FOREIGN KEY (ID) REFERENCES Estate(ID)
+);
+
+CREATE TABLE Contract (
+	Contract_No	INTEGER NOT NULL,
+	Date			DATE,
+	Place		VARCHAR(70),
+	PRIMARY KEY(Contract_No)
+);
+
+CREATE TABLE Purchase_Contract(
+	Contract_No		INTEGER NOT NULL,
+	No_Installments	INTEGER,
+	Interest_Rate		REAL,
+	PRIMARY KEY(Contract_No),
+	FOREIGN KEY (Contract_No) REFERENCES Contract(Contract_No)
+);
+
+
+CREATE TABLE Tenancy_Contract(
+	Contract_No		INTEGER NOT NULL,
+	Start_Date		DATE,
+	Duration			INTEGER,
+	Additional_Costs	INTEGER,
+	PRIMARY KEY (Contract_No),
+	FOREIGN KEY (Contract_No) REFERENCES Contract(Contract_No)
+);
+
+CREATE TABLE Sells(
+	ID				INTEGER GENERATED ALWAYS AS IDENTITY,
+	House_ID			INTEGER,
+	Contract_ID		INTEGER NOT NULL,
+	Person_ID			INTEGER,
+	FOREIGN KEY (House_ID) REFERENCES House(ID),
+	FOREIGN KEY (Contract_ID) REFERENCES Purchase_Contract(Contract_No),
+	FOREIGN KEY (Person_ID) REFERENCES Person(ID),
+	PRIMARY KEY (ID)
+);
+
+CREATE TABLE Rents(
+	ID				INTEGER GENERATED ALWAYS AS IDENTITY,
+	Apartment_ID		INTEGER,
+	Contract_ID		INTEGER NOT NULL,
+	Person_ID			INTEGER,
+	FOREIGN KEY (Apartment_ID) REFERENCES Apartment(ID),
+	FOREIGN KEY (Contract_ID) REFERENCES Tenancy_Contract(Contract_No),
+	FOREIGN KEY (Person_ID) REFERENCES Person(ID),
+	PRIMARY KEY (ID)
+);
+
+
