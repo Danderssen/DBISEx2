@@ -154,23 +154,23 @@ public class Makler {
 		Connection con = DB2ConnectionManager.getInstance().getConnection();
 
 		try {
-			// FC<ge neues Element hinzu, wenn das Objekt noch keine ID hat.
+			// Füge neues Element hinzu, wenn das Objekt noch keine ID hat.
 			if (getId() == -1) {
-				// Achtung, hier wird noch ein Parameter mitgegeben,
-				// damit spC$ter generierte IDs zurC<ckgeliefert werden!
 				String insertSQL = "INSERT INTO ESTATE_AGENT(name, address, login, password) VALUES (?, ?, ?, ?)";
 
+				// Achtung, hier wird noch ein Parameter mitgegeben,
+				// damit später generierte IDs zurükgeliefert werden!
 				PreparedStatement pstmt = con.prepareStatement(insertSQL,
 						Statement.RETURN_GENERATED_KEYS);
 
-				// Setze Anfrageparameter und fC<hre Anfrage aus
+				// Setze Anfrageparameter und führe Anfrage aus
 				pstmt.setString(1, getName());
 				pstmt.setString(2, getAddress());
 				pstmt.setString(3, getLogin());
 				pstmt.setString(4, getPassword());
 				pstmt.executeUpdate();
 
-				// Hole die Id des engefC<gten Datensatzes
+				// Hole die Id des engefügten Datensatzes
 				ResultSet rs = pstmt.getGeneratedKeys();
 				if (rs.next()) {
 					setId(rs.getInt(1));

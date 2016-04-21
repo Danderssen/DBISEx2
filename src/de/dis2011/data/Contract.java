@@ -1,0 +1,126 @@
+package de.dis2011.data;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Date;
+
+public class Contract {
+
+	private int contractNumber;
+	private Date date;
+	private String place;
+
+	public int getContractNumber() {
+		return contractNumber;
+	}
+
+	public void setContractNumber(int contractNumber) {
+		this.contractNumber = contractNumber;
+	}
+
+	public Date getDate() {
+		return date;
+	}
+
+	public void setDate(Date date) {
+		this.date = date;
+	}
+
+	public String getPlace() {
+		return place;
+	}
+
+	public void setPlace(String place) {
+		this.place = place;
+	}
+
+	public static Contract load(int contractNumber) {
+		try {
+			// Hole Verbindung
+			Connection con = DB2ConnectionManager.getInstance().getConnection();
+
+			// Erzeuge Anfrage
+			String selectSQL = "SELECT * FROM CONTRACT WHERE contract_number = ?";
+			PreparedStatement pstmt = con.prepareStatement(selectSQL);
+			pstmt.setInt(1, contractNumber);
+
+			ResultSet rs = pstmt.executeQuery();
+			if (rs.next()) {
+				Contract ts = new Contract();
+				ts.setContractNumber(contractNumber);
+				ts.setDate(rs.getDate("date"));
+				ts.setPlace(rs.getString("place"));
+
+				rs.close();
+				pstmt.close();
+				return ts;
+			}
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public static boolean delete(int contractNumber) {
+		try {
+			// Hole Verbindung
+			Connection con = DB2ConnectionManager.getInstance().getConnection();
+
+			// Erzeuge Anfrage
+			String selectSQL = "DELETE FROM CONTRACT WHERE contract_number = ?";
+			PreparedStatement pstmt = con.prepareStatement(selectSQL);
+			pstmt.setInt(1, contractNumber);
+			return pstmt.execute();
+
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return true;
+	}
+
+	public void save() {
+		// Hole Verbindung
+		Connection con = DB2ConnectionManager.getInstance().getConnection();
+
+		try {
+			if (getContractNumber() == -1) {
+				String insertSQL = "INSERT INTO CONTRACT(date, place) VALUES (?, ?)";
+
+				PreparedStatement pstmt = con.prepareStatement(insertSQL,
+						Statement.RETURN_GENERATED_KEYS);
+
+				pstmt.setDate(1, getDate());
+				pstmt.setString(2, getPlace());
+				pstmt.executeUpdate();
+
+				ResultSet rs = pstmt.getGeneratedKeys();
+				if (rs.next()) {
+					setContractNumber(rs.getInt(1));
+				}
+
+				rs.close();
+				pstmt.close();
+			}
+			else {
+				// Falls schon eine ID vorhanden ist, mache ein Update...
+				String updateSQL = "UPDATE CONTRACT SET date = ?, place = ? WHERE contract_number = ?";
+				PreparedStatement pstmt = con.prepareStatement(updateSQL);
+
+				pstmt.setDate(1, getDate());
+				pstmt.setString(2, getPlace());
+				pstmt.setInt(3, getContractNumber());
+				pstmt.executeUpdate();
+
+				pstmt.close();
+			}
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+}
