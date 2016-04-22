@@ -8,7 +8,7 @@ import java.sql.Statement;
 
 public class Person {
 
-	private int id;
+	private int id = -1;
 	private String firstName;
 	private String name;
 	private String address;
@@ -95,7 +95,7 @@ public class Person {
 
 		try {
 			if (getId() == -1) {
-				String insertSQL = "INSERT INTO PERSON(first_name, name, address) VALUES (?, ?, ?)";
+				String insertSQL = "INSERT INTO PERSON (first_name, name, address) VALUES (?, ?, ?)";
 
 				PreparedStatement pstmt = con.prepareStatement(insertSQL,
 						Statement.RETURN_GENERATED_KEYS);
@@ -115,7 +115,7 @@ public class Person {
 			}
 			/* Probably not required */
 			else {
-				String updateSQL = "UPDATE CONTRACT SET first_name = ?, name = ?, address = ? WHERE id = ?";
+				String updateSQL = "UPDATE PERSON SET first_name = ?, name = ?, address = ? WHERE id = ?";
 				PreparedStatement pstmt = con.prepareStatement(updateSQL);
 
 				pstmt.setString(1, getFirstName());

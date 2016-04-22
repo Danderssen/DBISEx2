@@ -5,7 +5,6 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 public class TenancyContract extends Contract {
 
@@ -36,6 +35,9 @@ public class TenancyContract extends Contract {
 	public void setAdditionalCosts(float additionalCosts) {
 		this.additionalCosts = additionalCosts;
 	}
+	
+	public TenancyContract() {
+	}
 
 	public TenancyContract(Contract c) {
 		this.setDate(c.getDate());
@@ -47,39 +49,32 @@ public class TenancyContract extends Contract {
 		Connection con = DB2ConnectionManager.getInstance().getConnection();
 
 		try {
-			if (getContractNumber() == -1) {
-				super.save();
-				String insertSQL = "INSERT INTO TENANCY_CONTRACT(start_date, duration, additional_costs) VALUES (?, ?, ?)";
+			super.save();
+			
+			String insertSQL = "INSERT INTO TENANCY_CONTRACT(start_date, duration, additional_costs, contract_no) VALUES (?, ?, ?, ?)";
+			PreparedStatement pstmt = con.prepareStatement(insertSQL);
 
-				PreparedStatement pstmt = con.prepareStatement(insertSQL,
-						Statement.RETURN_GENERATED_KEYS);
+			pstmt.setDate(1, getStartDate());
+			pstmt.setInt(2, getDuration());
+			pstmt.setFloat(3, getAdditionalCosts());
+			pstmt.setInt(4, getContractNumber());
+			pstmt.executeUpdate();
+			pstmt.close();
+			
+			/*
+			//else case for updating - probably not used!
+			super.save();
+			String updateSQL = "UPDATE TENANCY_CONTRACT SET start_date = ?, duration = ?, additional_costs = ? WHERE contract_no = ?";
+			PreparedStatement pstmt = con.prepareStatement(updateSQL);
 
-				pstmt.setDate(1, getStartDate());
-				pstmt.setInt(2, getDuration());
-				pstmt.setFloat(3, getAdditionalCosts());
-				pstmt.executeUpdate();
+			pstmt.setDate(1, getStartDate());
+			pstmt.setInt(2, getDuration());
+			pstmt.setFloat(3, getAdditionalCosts());
+			pstmt.setInt(4, getContractNumber());
+			pstmt.executeUpdate();
 
-				ResultSet rs = pstmt.getGeneratedKeys();
-				if (rs.next()) {
-					setContractNumber(rs.getInt(1));
-				}
-
-				rs.close();
-				pstmt.close();
-			}
-			else {
-				super.save();
-				String updateSQL = "UPDATE TENANCY_CONTRACT SET start_date = ?, duration = ?, additional_costs = ? WHERE contract_number = ?";
-				PreparedStatement pstmt = con.prepareStatement(updateSQL);
-
-				pstmt.setDate(1, getStartDate());
-				pstmt.setInt(2, getDuration());
-				pstmt.setFloat(3, getAdditionalCosts());
-				pstmt.setInt(4, getContractNumber());
-				pstmt.executeUpdate();
-
-				pstmt.close();
-			}
+			pstmt.close();
+			*/
 		}
 		catch (SQLException e) {
 			e.printStackTrace();
@@ -90,7 +85,7 @@ public class TenancyContract extends Contract {
 		try {
 			Connection con = DB2ConnectionManager.getInstance().getConnection();
 
-			String selectSQL = "DELETE FROM TENANCY_CONTRACT WHERE c = ?";
+			String selectSQL = "DELETE FROM TENANCY_CONTRACT WHERE contract_no = ?";
 			PreparedStatement pstmt = con.prepareStatement(selectSQL);
 			pstmt.setInt(1, contractNumber);
 			boolean success = pstmt.execute();
@@ -108,7 +103,7 @@ public class TenancyContract extends Contract {
 		try {
 			Connection con = DB2ConnectionManager.getInstance().getConnection();
 
-			String selectSQL = "SELECT * FROM TENANCY_CONTRACT WHERE contract_number = ?";
+			String selectSQL = "SELECT * FROM TENANCY_CONTRACT WHERE contract_no = ?";
 			PreparedStatement pstmt = con.prepareStatement(selectSQL);
 			pstmt.setInt(1, contractNumber);
 

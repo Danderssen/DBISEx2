@@ -8,9 +8,9 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Rents {
+public class Rent {
 
-	private int id;
+	private int id = -1;
 	private int apartmentId;
 	private int personId;
 	private int tenancyContractId;
@@ -79,8 +79,8 @@ public class Rents {
 		}
 	}
 	
-	public static List<Rents> loadAll() {
-		List<Rents> resultList = new ArrayList<Rents>();
+	public static List<Rent> loadAll() {
+		List<Rent> resultList = new ArrayList<Rent>();
 		try {
 			Connection con = DB2ConnectionManager.getInstance().getConnection();
 
@@ -89,7 +89,7 @@ public class Rents {
 
 			ResultSet rs = pstmt.executeQuery();
 			while (rs.next()) {
-				Rents ts = new Rents();
+				Rent ts = new Rent();
 				ts.setId(rs.getInt("id"));
 				ts.setApartmentId(rs.getInt("apartment_id"));
 				ts.setPersonId(rs.getInt("person_id"));

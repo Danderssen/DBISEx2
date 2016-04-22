@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 public class PurchaseContract extends Contract {
 
@@ -27,6 +26,9 @@ public class PurchaseContract extends Contract {
 		this.interestRate = interestRate;
 	}
 
+	public PurchaseContract() {
+	}
+	
 	public PurchaseContract(Contract c) {
 		this.setDate(c.getDate());
 		this.setContractNumber(c.getContractNumber());
@@ -37,38 +39,31 @@ public class PurchaseContract extends Contract {
 		Connection con = DB2ConnectionManager.getInstance().getConnection();
 
 		try {
-			if (getContractNumber() == -1) {
-				super.save();
+			super.save();
 
-				String insertSQL = "INSERT INTO PURCHASE_CONTRACT(no_installments, interest_rate) VALUES (?, ?)";
-				PreparedStatement pstmt = con.prepareStatement(insertSQL,
-						Statement.RETURN_GENERATED_KEYS);
+			String insertSQL = "INSERT INTO PURCHASE_CONTRACT (no_installments, interest_rate, contract_no) VALUES (?, ?, ?)";
+			PreparedStatement pstmt = con.prepareStatement(insertSQL);
 
-				pstmt.setInt(1, getInstallments());
-				pstmt.setFloat(2, getInterestRate());
-				pstmt.executeUpdate();
+			pstmt.setInt(1, getInstallments());
+			pstmt.setFloat(2, getInterestRate());
+			pstmt.setInt(3, getContractNumber());
+			pstmt.executeUpdate();
+			pstmt.close();
+			
+			/*
+			//else case for updating probably not used!
+			super.save();
 
-				ResultSet rs = pstmt.getGeneratedKeys();
-				if (rs.next()) {
-					setContractNumber(rs.getInt(1));
-				}
+			String updateSQL = "UPDATE PURCHASE_CONTRACT SET no_installments = ?, interest_rate = ? WHERE contract_no = ?";
+			PreparedStatement pstmt = con.prepareStatement(updateSQL);
 
-				rs.close();
-				pstmt.close();
-			}
-			else {
-				super.save();
+			pstmt.setInt(1, getInstallments());
+			pstmt.setFloat(2, getInterestRate());
+			pstmt.setInt(3, getContractNumber());
+			pstmt.executeUpdate();
 
-				String updateSQL = "UPDATE PURCHASE_CONTRACT SET no_installments = ?, interest_rate = ? WHERE contract_number = ?";
-				PreparedStatement pstmt = con.prepareStatement(updateSQL);
-
-				pstmt.setInt(1, getInstallments());
-				pstmt.setFloat(2, getInterestRate());
-				pstmt.setInt(3, getContractNumber());
-				pstmt.executeUpdate();
-
-				pstmt.close();
-			}
+			pstmt.close();
+			*/
 		}
 		catch (SQLException e) {
 			e.printStackTrace();
@@ -79,7 +74,7 @@ public class PurchaseContract extends Contract {
 		try {
 			Connection con = DB2ConnectionManager.getInstance().getConnection();
 
-			String selectSQL = "DELETE FROM PURCHASE_CONTRACT WHERE contract_number = ?";
+			String selectSQL = "DELETE FROM PURCHASE_CONTRACT WHERE contract_no = ?";
 			PreparedStatement pstmt = con.prepareStatement(selectSQL);
 			pstmt.setInt(1, contractNumber);
 			boolean success = pstmt.execute();
@@ -97,7 +92,7 @@ public class PurchaseContract extends Contract {
 		try {
 			Connection con = DB2ConnectionManager.getInstance().getConnection();
 
-			String selectSQL = "SELECT * FROM PURCHASE_CONTRACT WHERE contract_number = ?";
+			String selectSQL = "SELECT * FROM PURCHASE_CONTRACT WHERE contract_no = ?";
 			PreparedStatement pstmt = con.prepareStatement(selectSQL);
 			pstmt.setInt(1, contractNumber);
 

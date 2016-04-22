@@ -1,11 +1,10 @@
 package de.dis2011.data;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Date;
 
 public class Contract {
 
@@ -39,11 +38,9 @@ public class Contract {
 
 	public static Contract load(int contractNumber) {
 		try {
-			// Hole Verbindung
 			Connection con = DB2ConnectionManager.getInstance().getConnection();
 
-			// Erzeuge Anfrage
-			String selectSQL = "SELECT * FROM CONTRACT WHERE contract_number = ?";
+			String selectSQL = "SELECT * FROM CONTRACT WHERE contract_no = ?";
 			PreparedStatement pstmt = con.prepareStatement(selectSQL);
 			pstmt.setInt(1, contractNumber);
 
@@ -71,7 +68,7 @@ public class Contract {
 			Connection con = DB2ConnectionManager.getInstance().getConnection();
 
 			// Erzeuge Anfrage
-			String selectSQL = "DELETE FROM CONTRACT WHERE contract_number = ?";
+			String selectSQL = "DELETE FROM CONTRACT WHERE contract_no = ?";
 			PreparedStatement pstmt = con.prepareStatement(selectSQL);
 			pstmt.setInt(1, contractNumber);
 			return pstmt.execute();
@@ -84,41 +81,32 @@ public class Contract {
 	}
 
 	public void save() {
-		// Hole Verbindung
 		Connection con = DB2ConnectionManager.getInstance().getConnection();
 
 		try {
-			if (getContractNumber() == -1) {
-				String insertSQL = "INSERT INTO CONTRACT(date, place) VALUES (?, ?)";
+			String insertSQL = "INSERT INTO CONTRACT (date, place, contract_no) VALUES (?, ?, ?)";
 
-				PreparedStatement pstmt = con.prepareStatement(insertSQL,
-						Statement.RETURN_GENERATED_KEYS);
+			PreparedStatement pstmt = con.prepareStatement(insertSQL);
 
-				pstmt.setDate(1, getDate());
-				pstmt.setString(2, getPlace());
-				pstmt.executeUpdate();
+			pstmt.setDate(1, getDate());
+			pstmt.setString(2, getPlace());
+			pstmt.setInt(3, getContractNumber());
+			pstmt.executeUpdate();
 
-				ResultSet rs = pstmt.getGeneratedKeys();
-				if (rs.next()) {
-					setContractNumber(rs.getInt(1));
-				}
+			pstmt.close();
+			
+			/*
+			String updateSQL = "UPDATE CONTRACT SET date = ?, place = ? WHERE contract_no = ?";
+			PreparedStatement pstmt = con.prepareStatement(updateSQL);
 
-				rs.close();
-				pstmt.close();
+			pstmt.setDate(1, getDate());
+			pstmt.setString(2, getPlace());
+			pstmt.setInt(3, getContractNumber());
+			pstmt.executeUpdate();
+
+			pstmt.close();
+			*/
 			}
-			else {
-				// Falls schon eine ID vorhanden ist, mache ein Update...
-				String updateSQL = "UPDATE CONTRACT SET date = ?, place = ? WHERE contract_number = ?";
-				PreparedStatement pstmt = con.prepareStatement(updateSQL);
-
-				pstmt.setDate(1, getDate());
-				pstmt.setString(2, getPlace());
-				pstmt.setInt(3, getContractNumber());
-				pstmt.executeUpdate();
-
-				pstmt.close();
-			}
-		}
 		catch (SQLException e) {
 			e.printStackTrace();
 		}
