@@ -91,7 +91,7 @@ public class Sell {
 			while (rs.next()) {
 				Sell ts = new Sell();
 				ts.setId(rs.getInt("id"));
-				ts.setHouseId(rs.getInt("sells_id"));
+				ts.setHouseId(rs.getInt("house_id"));
 				ts.setPersonId(rs.getInt("person_id"));
 				ts.setPurchaseContractId(rs.getInt("contract_id"));
 				

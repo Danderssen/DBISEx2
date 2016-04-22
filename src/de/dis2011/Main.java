@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.sql.Date;
+import java.util.Random;
 import de.dis2011.data.Apartment;
 import de.dis2011.data.Estate;
 import de.dis2011.data.House;
@@ -293,18 +294,20 @@ public class Main {
 	public static void showContractMenu() {
 		//TODO: Just for testing purposes -> TBD!
 		
+		Random random = new Random();
+		
 		Person p = new Person();
 		p.setAddress("a"); p.setFirstName("a"); p.setName("a");
 		p.save();
 		System.out.println("Person with ID " + p.getId() + " created!");
 		
 		PurchaseContract pc = new PurchaseContract();
-		pc.setContractNumber(1); pc.setDate(new Date(1)); pc.setInstallments(12); pc.setInterestRate(4.5f); pc.setPlace("a");
+		pc.setContractNumber(random.nextInt()); pc.setDate(new Date(1)); pc.setInstallments(12); pc.setInterestRate(4.5f); pc.setPlace("a");
 		pc.save();
 		System.out.println("Purchase contract with contract number " + pc.getContractNumber() + " created!");
 		
 		TenancyContract tc = new TenancyContract();
-		tc.setContractNumber(2); tc.setDate(new Date(1)); tc.setPlace("a"); tc.setAdditionalCosts(4.2f); tc.setDuration(5); tc.setStartDate(new Date(1));
+		tc.setContractNumber(random.nextInt()); tc.setDate(new Date(1)); tc.setPlace("a"); tc.setAdditionalCosts(4.2f); tc.setDuration(5); tc.setStartDate(new Date(1));
 		tc.save();
 		System.out.println("Tenancy contract with contract number " + tc.getContractNumber() + " created!");
 		
@@ -317,6 +320,17 @@ public class Main {
 		r.setApartmentId(2); r.setPersonId(p.getId()); r.setTenancyContractId(tc.getContractNumber());
 		r.save();
 		System.out.println("Rent with ID " + r.getId() + " created!");
+		
+		System.out.println("All rents:");
+		for (Rent rent : Rent.loadAll()) {
+			System.out.println("Rent " + rent.getId());
+		}
+		
+		System.out.println("All sells:");
+		for (Sell sell : Sell.loadAll()) {
+			System.out.println("Sell " + sell.getId());
+		}
+		
 	}
 	
 }
