@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import de.dis2011.FormUtil;
 
 public class Contract {
 
@@ -69,13 +70,13 @@ public class Contract {
 
 			String selectSQL = "SELECT * FROM CONTRACT";
 			PreparedStatement pstmt = con.prepareStatement(selectSQL);
-			ArrayLit<Contract> contracts = new ArrayList<Contract>();
+			ArrayList<Contract> contracts = new ArrayList<Contract>();
 			
 			ResultSet rs = pstmt.executeQuery();
 			
 			while (rs.next()) {
 				Contract ts = new Contract();
-				ts.setContractNumber(rs.getDate("contract_no"));
+				ts.setContractNumber(rs.getInt("contract_no"));
 				ts.setDate(rs.getDate("date"));
 				ts.setPlace(rs.getString("place"));
 				
