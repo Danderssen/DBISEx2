@@ -293,7 +293,39 @@ public class Main {
 	
 	public static void showContractMenu() {
 		//TODO: Just for testing purposes -> TBD!
+	
+		final int NEW_PERSON = 0;
+		final int SIGN_CONTRACT = 1;
+		final int OVERVIEW = 2;
+		final int BACK = 3;
 		
+		//Maklerverwaltungsmenü
+		Menu contractMenu = new Menu("Contract Management");
+		contractMenu.addEntry("Insert Person", NEW_PERSON);
+		contractMenu.addEntry("Sign Contract", SIGN_CONTRACT);
+		contractMenu.addEntry("Overview of Contracts", OVERVIEW);
+		contractMenu.addEntry("Back to main menu", BACK);
+		
+		//Verarbeite Eingabe
+		while(true) {
+			int response = contractMenu.show();
+			
+			switch(response) {
+			case NEW_PERSON:
+					newPerson(int id);
+					break;
+			case SIGN_CONTRACT:
+					signContract();
+					break;
+			case OVERVIEW:
+					overviewContracts();
+					break;
+			case BACK:
+					return;
+			}
+		}
+		
+		/*	
 		Random random = new Random();
 		
 		Person p = new Person();
@@ -330,7 +362,76 @@ public class Main {
 		for (Sell sell : Sell.loadAll()) {
 			System.out.println("Sell " + sell.getId());
 		}
+	*/	
+	}
 		
+	public static void signContract(){
+		final int NEW_PURCHASECONTRACT = 0;
+		final int NEW_TENANCYCONTRACT = 1;
+		final int BACK = 2;
+		
+		Menu signContractMenu = new Menu("Sign Contract");
+		signContractMenu.addEntry("New Purchase Contract", NEW_PURCHASECONTRACT);
+		signContractMenu.addEntry("New Tenancy Contract", NEW_TENANCYCONTRACT);
+		signContractMenu.addEntry("Back to main menu", BACK);
+			
+		int sellID = 12345; //Where to get sellID from??
+		int rentID = 12345; //Where to get the rentID from??
+		
+		//Verarbeite Eingabe
+		while (true) {
+			int response = signContractMenu.show();
+
+			switch (response) {
+			case NEW_PURCHASECONTRACT:
+				newPurchaseContract();
+				System.out.println("New purchase contract was created.")
+				break;
+			case NEW_TENANCYCONTRACT:
+				newTenancyContract();
+				System.out.println("New tenancy contract was created.")
+				break;
+			case BACK:
+				return;
+			}
+		}
 	}
 	
+	public static void newPurchaseContract(int sellID){
+		Sell sell = Sell.load(sellID);
+		Contract c = Contract.ContractFromInput();
+		PurchaseContract pc = new PurchaseContract(c);
+		sell.setPurchaseContractId(c.getContractNumber());
+		pc.setInstallments(FormUtil.readInt("Installments"));
+		pc.setInterestRate(FormUtil.readFloat("Interest rate"));
+		pc.save();
+	}
+	
+	public static void newTenancyContract(int rentID){
+		Rent rent = Rent.load(rentID);
+		Contract c = Contract.ContractFromInput();
+		TenancyContract tc = new TenancyContract(c);
+		rent.setTenancyContractId(c.getContractNumber());
+		tc.setStartDate(Date.valueOf(FormUtil.readString("Start Date")));
+		tc.setDuration(FormUtil.readFloat("Interest rate"));
+		tc.setAdditionalCosts(FormUtil.readFloat("Additional Cost"));
+		tc.save();
+	}
+	
+	public static void overviewContracts(){
+		ArrayList<Contract> contracts = Contract.loadAll();
+		
+		for(Contract c : contracts){
+			PurchaseContract pc = PurchaseContract.load(c.getContractNumber());
+			TenancyContract tc = TenancyContract.load(c.getContractNumber());
+			
+			if(pc != null){
+				System.out.println(c.toString() + pc.toString());
+			}
+			
+			if(tc != null){
+				System.out.println(c.toString() + tc.toString());
+			}
+		}	
+	}
 }

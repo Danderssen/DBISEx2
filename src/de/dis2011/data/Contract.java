@@ -5,6 +5,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 public class Contract {
 
@@ -61,6 +62,35 @@ public class Contract {
 		}
 		return null;
 	}
+	
+	public static ArrayList<Contract> loadAll() {
+		try {
+			Connection con = DB2ConnectionManager.getInstance().getConnection();
+
+			String selectSQL = "SELECT * FROM CONTRACT";
+			PreparedStatement pstmt = con.prepareStatement(selectSQL);
+			ArrayLit<Contract> contracts = new ArrayList<Contract>();
+			
+			ResultSet rs = pstmt.executeQuery();
+			
+			while (rs.next()) {
+				Contract ts = new Contract();
+				ts.setContractNumber(rs.getDate("contract_no"));
+				ts.setDate(rs.getDate("date"));
+				ts.setPlace(rs.getString("place"));
+				
+				contracts.add(ts);
+			}
+			
+			rs.close();
+			pstmt.close();
+			return contracts;
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 
 	public static boolean delete(int contractNumber) {
 		try {
@@ -110,5 +140,20 @@ public class Contract {
 		catch (SQLException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public static Contract ContractFromInput(){
+		Contract c = new Contract();
+		c.setContractNumber(FormUtil.readInt("ContractNumber"));
+		c.setDate(Date.valueOf(FormUtil.readString("Date")));
+		c.setPlace(FormUtil.readString("Place"));
+		return c;
+	}
+	
+	@Override
+	public String toString(){
+		return "ContractNumber: " + contractNumber + "\n" + 
+			   "Date: " + date.toString() + "\n" + 
+			   "Place: " + place + "\n";
 	}
 }

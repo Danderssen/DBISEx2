@@ -11,7 +11,13 @@ public class TenancyContract extends Contract {
 	private Date startDate;
 	private int duration;
 	private float additionalCosts;
-
+	
+	public TenancyContract(Contract c){
+		this.setContractNumber(c.getContractNumber());
+		this.setDate(c.getDate());
+		this.setPlace(c.getPlace());
+	}
+	
 	public Date getStartDate() {
 		return startDate;
 	}
@@ -124,5 +130,11 @@ public class TenancyContract extends Contract {
 		}
 		return null;
 	}
-
+	
+	@Override
+	public String toString(){
+		return "Start date: " + startDate.toString() + "\n" + 
+			   "Duration: " + Integer.toString(duration) + "\n"
+			   "Additional Costs: " + Float.toString(additionalCosts);
+	}
 }

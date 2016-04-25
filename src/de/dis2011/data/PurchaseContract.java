@@ -6,10 +6,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class PurchaseContract extends Contract {
-
 	private int installments;
 	private float interestRate;
-
+	
+	public PurchaseContract(Contract c){
+		this.setContractNumber(c.getContractNumber());
+		this.setDate(c.getDate());
+		this.setPlace(c.getPlace());
+	}
+	
 	public int getInstallments() {
 		return installments;
 	}
@@ -109,7 +114,15 @@ public class PurchaseContract extends Contract {
 		}
 		catch (SQLException e) {
 			e.printStackTrace();
+		} 
+		finally {
+			return null;
 		}
-		return null;
+	}
+	
+	@Override
+	public String toString(){
+		return "Installments: " + Integer.toString(installments) + "\n" + 
+			   "Interest rate: " + Float.toString(interestRate);
 	}
 }
