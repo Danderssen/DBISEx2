@@ -412,19 +412,17 @@ public class Main {
 	}
 
 	public static void overviewContracts() {
-		ArrayList<Contract> contracts = Contract.loadAll();
+		ArrayList<PurchaseContract> purchaseContracts = PurchaseContract.loadAll();
+		ArrayList<TenancyContract> tenancyContracts = TenancyContract.loadAll();
 
-		for (Contract c : contracts) {
-			PurchaseContract pc = PurchaseContract.load(c.getContractNumber());
-			TenancyContract tc = TenancyContract.load(c.getContractNumber());
-
-			if (pc != null) {
-				System.out.println(c.toString() + pc.toString());
-			}
-
-			if (tc != null) {
-				System.out.println(c.toString() + tc.toString());
-			}
+		System.out.println("Purchase contracts:\n---------------");
+		for (Contract c : purchaseContracts) {
+				System.out.println(c.toString() + "\n");
+		}
+		
+		System.out.println("Tenancy contracts:\n---------------");
+		for (Contract c : tenancyContracts) {
+				System.out.println(c.toString() + "\n");
 		}
 	}
 }

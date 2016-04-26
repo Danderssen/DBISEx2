@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 public class PurchaseContract extends Contract {
 	private int installments;
@@ -86,6 +87,30 @@ public class PurchaseContract extends Contract {
 		}
 		return true;
 	}
+	
+	public static ArrayList<PurchaseContract> loadAll() {
+		try {
+			Connection con = DB2ConnectionManager.getInstance().getConnection();
+
+			String selectSQL = "SELECT CONTRACT_NO FROM PURCHASE_CONTRACT";
+			PreparedStatement pstmt = con.prepareStatement(selectSQL);
+			ArrayList<PurchaseContract> contracts = new ArrayList<PurchaseContract>();
+			
+			ResultSet rs = pstmt.executeQuery();
+			
+			while (rs.next()) {
+				contracts.add(load(rs.getInt("contract_no")));
+			}
+			
+			rs.close();
+			pstmt.close();
+			return contracts;
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 
 	public static PurchaseContract load(int contractNumber) {
 		try {
@@ -98,7 +123,7 @@ public class PurchaseContract extends Contract {
 			ResultSet rs = pstmt.executeQuery();
 			if (rs.next()) {
 				PurchaseContract ts = new PurchaseContract(Contract.load(contractNumber));
-				ts.setInstallments(rs.getInt("installments"));
+				ts.setInstallments(rs.getInt("no_installments"));
 				ts.setInterestRate(rs.getFloat("interest_rate"));
 
 				rs.close();
@@ -115,7 +140,7 @@ public class PurchaseContract extends Contract {
 	
 	@Override
 	public String toString(){
-		return "Installments: " + Integer.toString(installments) + "\n" + 
+		return super.toString() + "Installments: " + Integer.toString(installments) + "\n" + 
 			   "Interest rate: " + Float.toString(interestRate);
 	}
 }

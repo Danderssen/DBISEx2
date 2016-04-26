@@ -5,7 +5,6 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import de.dis2011.FormUtil;
 
 public class Contract {
@@ -64,7 +63,7 @@ public class Contract {
 		return null;
 	}
 	
-	public static ArrayList<Contract> loadAll() {
+	/*public static ArrayList<Contract> loadAll() {
 		try {
 			Connection con = DB2ConnectionManager.getInstance().getConnection();
 
@@ -91,7 +90,7 @@ public class Contract {
 			e.printStackTrace();
 		}
 		return null;
-	}
+	}*/
 
 	public static boolean delete(int contractNumber) {
 		try {

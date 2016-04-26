@@ -5,6 +5,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 public class TenancyContract extends Contract {
 
@@ -98,6 +99,30 @@ public class TenancyContract extends Contract {
 		}
 		return true;
 	}
+	
+	public static ArrayList<TenancyContract> loadAll() {
+		try {
+			Connection con = DB2ConnectionManager.getInstance().getConnection();
+
+			String selectSQL = "SELECT CONTRACT_NO FROM TENANCY_CONTRACT";
+			PreparedStatement pstmt = con.prepareStatement(selectSQL);
+			ArrayList<TenancyContract> contracts = new ArrayList<TenancyContract>();
+			
+			ResultSet rs = pstmt.executeQuery();
+			
+			while (rs.next()) {
+				contracts.add(load(rs.getInt("contract_no")));
+			}
+			
+			rs.close();
+			pstmt.close();
+			return contracts;
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 
 	public static TenancyContract load(int contractNumber) {
 		try {
@@ -127,7 +152,7 @@ public class TenancyContract extends Contract {
 	
 	@Override
 	public String toString(){
-		return "Start date: " + startDate.toString() + "\n" + 
+		return super.toString() + "Start date: " + startDate.toString() + "\n" + 
 			   "Duration: " + Integer.toString(duration) + "\n" +
 			   "Additional Costs: " + Float.toString(additionalCosts);
 	}
