@@ -97,8 +97,8 @@ public class Estate {
 				pstmt.setString(3, getStreet());
 				pstmt.setInt(4, getStreetNumber());
 				pstmt.setInt(5, getSquareArea());
-				pstmt.setInt(6, getId());
-				pstmt.setInt(7, getAgentId());
+				pstmt.setInt(6, getAgentId());
+				pstmt.setInt(7, getId());
 				pstmt.executeUpdate();
 
 				pstmt.close();

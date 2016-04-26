@@ -184,6 +184,85 @@ public class Main {
 
 		System.out.println("Makler mit der ID " + m.getId() + " wurde bearbeitet.");
 	}
+	
+	public static void editHouse(int agentID) {
+		int id = -1;
+		BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in));
+		System.out.print("Enter id ");
+		try {
+			id = Integer.parseInt(stdin.readLine());
+		}
+		catch (NumberFormatException e)
+		{
+			e.printStackTrace();
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+		}
+
+
+		House m = House.load(id);
+		if (m == null)
+		{
+			System.out.println("House not found.");
+			return;
+		}
+
+		m.setCity(FormUtil.readString("City"));
+		m.setPostalCode(FormUtil.readInt("Postal Code"));
+		m.setStreet(FormUtil.readString("Street"));
+		m.setStreetNumber(FormUtil.readInt("Street Number"));
+		m.setSquareArea(FormUtil.readInt("Square Area"));
+		m.setFloors(FormUtil.readInt("Floors"));
+		m.setPrice(FormUtil.readInt("Price"));
+		m.setGarden(FormUtil.readBool("Garden"));
+		m.setAgentId(agentID);
+		m.save();
+
+		System.out.println("House mit der ID " + m.getId() + " wurde bearbeitet.");
+	}
+	
+	public static void editApartment(int agentID) {
+		int id = -1;
+		BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in));
+		System.out.print("Enter id ");
+		try {
+			id = Integer.parseInt(stdin.readLine());
+		}
+		catch (NumberFormatException e)
+		{
+			e.printStackTrace();
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+		}
+
+
+		Apartment m = Apartment.load(id);
+		if (m == null)
+		{
+			System.out.println("House not found.");
+			return;
+		}
+
+		m.setCity(FormUtil.readString("City"));
+		m.setPostalCode(FormUtil.readInt("Postal Code"));
+		m.setStreet(FormUtil.readString("Street"));
+		m.setStreetNumber(FormUtil.readInt("Street Number"));
+		m.setSquareArea(FormUtil.readInt("Square Area"));
+		m.setFloor(FormUtil.readInt("Floor"));
+		m.setRent(FormUtil.readInt("Rent"));
+		m.setRooms(FormUtil.readFloat("Rooms"));
+		m.setBalcony(FormUtil.readBool("Balcony"));
+		m.setKitchen(FormUtil.readBool("Kitchen"));
+		m.setAgentId(agentID);
+		m.save();
+
+
+		System.out.println("Apartment mit der ID " + m.getId() + " wurde bearbeitet.");
+	}
+	
+	
 
 	public static void showEstateMenu() {
 		// Menüoptionen
@@ -233,12 +312,10 @@ public class Main {
 				newEstate(agentID);
 				break;
 			case DELETE_ESTATE:
-				System.out.println("Not implemented yet!");
-				// deleteEstate();
+				 deleteEstate();
 				break;
 			case EDIT_ESTATE:
-				System.out.println("Not implemented yet!");
-				// editEstate();
+				 editEstate(agentID);
 				break;
 			case BACK:
 				return;
@@ -254,7 +331,7 @@ public class Main {
 		Menu estateMenu = new Menu("New Estate");
 		estateMenu.addEntry("New House", NEW_HOUSE);
 		estateMenu.addEntry("New Apartment", NEW_APARTMENT);
-		estateMenu.addEntry("Back to main menu", BACK);
+		estateMenu.addEntry("Back", BACK);
 
 		while (true) {
 			int response = estateMenu.show();
@@ -273,6 +350,107 @@ public class Main {
 			}
 		}
 	}
+	
+	public static void editEstate(int agentID)
+	{
+		final int EDIT_HOUSE = 0;
+		final int EDIT_APARTMENT = 1;
+		final int BACK = 2;
+		Menu estateMenu = new Menu("Edit Estate");
+		estateMenu.addEntry("Edit House", EDIT_HOUSE);
+		estateMenu.addEntry("Edit Apartment", EDIT_APARTMENT);
+		estateMenu.addEntry("Back", BACK);
+		
+		while (true) {
+			int response = estateMenu.show();
+
+			switch (response) {
+			case EDIT_HOUSE:
+				editHouse(agentID);
+				break;
+			case EDIT_APARTMENT:
+				editApartment(agentID);
+				break;
+			case BACK:
+				return;
+			}
+		}
+		
+	}
+	
+	public static void deleteEstate()
+	{
+		final int DELETE_HOUSE = 0;
+		final int DELETE_APARTMENT = 1;
+		final int BACK = 2;
+		Menu estateMenu = new Menu("Delete Estate");
+		estateMenu.addEntry("Delete House", DELETE_HOUSE);
+		estateMenu.addEntry("Delete Apartment", DELETE_APARTMENT);
+		estateMenu.addEntry("Back", BACK);
+		
+		while (true) {
+			int response = estateMenu.show();
+
+			switch (response) {
+			case DELETE_HOUSE:
+				deleteHouse();
+				break;
+			case DELETE_APARTMENT:
+				deleteApartment();
+				break;
+			case BACK:
+				return;
+			}
+		}
+		
+	}
+	public static void deleteHouse()
+	{
+		int id = -1;
+		BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in));
+		System.out.print("Enter id ");
+		try {
+			id = Integer.parseInt(stdin.readLine());
+		}
+		catch (NumberFormatException e)
+		{
+			e.printStackTrace();
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+		}
+		boolean success = House.delete(id);
+		if (success)
+			System.out.println("Delete successful");
+		else
+			System.out.println("Delete not successful");
+		
+	}
+
+	
+	public static void deleteApartment()
+	{
+		int id = -1;
+		BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in));
+		System.out.print("Enter id ");
+		try {
+			id = Integer.parseInt(stdin.readLine());
+		}
+		catch (NumberFormatException e)
+		{
+			e.printStackTrace();
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+		}
+		boolean success = Apartment.delete(id);
+		if (success)
+			System.out.println("Delete successful");
+		else
+			System.out.println("Delete not successful");
+		
+	}
+
 
 	public static void newHouse(int agentID) {
 		Estate e = Estate.EstateFromInput(agentID);
@@ -361,7 +539,7 @@ public class Main {
 		Menu signContractMenu = new Menu("Sign Contract");
 		signContractMenu.addEntry("New Purchase Contract", NEW_PURCHASECONTRACT);
 		signContractMenu.addEntry("New Tenancy Contract", NEW_TENANCYCONTRACT);
-		signContractMenu.addEntry("Back to main menu", BACK);
+		signContractMenu.addEntry("Back", BACK);
 
 		//Verarbeite Eingabe
 		while (true) {
