@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="de.dis2013.data.Vertrag" abstract="true">
+		<id name="id" column="id">
+			<generator class="increment" />
+		</id>
+		
+		<property name="datum" type="date" column="datum" />
+		<property name="ort" type="string" column="ort" />
+		<property name="vertragsnummer" type="integer" column="vertragsnummer" />
+		<!--one-to-one name="vertragspartner" class="de.dis2013.data.Person" column="vertragspartner" not-null="true" /-->
+		<many-to-one name="vertragspartner" class="de.dis2013.data.Person" column="vertragspartner" not-null="true" cascade="all"/>
+		
+		<union-subclass name="de.dis2013.data.Kaufvertrag" table="kaufvertrag">
+			<property name="anzahlRaten" type="integer" column="anzahlRaten" />
+			<property name="ratenzins" type="integer" column="ratenzins" />
+			<!--one-to-one name="haus" class="de.dis2013.data.Haus" column="haus" not-null="true" /-->
+			<many-to-one name="haus" class="de.dis2013.data.Haus" column="haus" not-null="false" cascade="all" />
+			
+		</union-subclass>
+
+		<union-subclass name="de.dis2013.data.Mietvertrag" table="mietvertrag">
+			<property name="mietbeginn" type="date" column="mietbeginn" />
+			<property name="dauer" type="integer" column="dauer" />
+			<property name="nebenkosten" type="integer" column="nebenkosten" />
+			<!--one-to-one name="wohnung" class="de.dis2013.data.Wohnung" column="wohnung" not-null="true" /-->
+			<many-to-one name="wohnung" class="de.dis2013.data.Wohnung" column="wohnung" not-null="false" cascade="all"  />
+		</union-subclass>
+		
+	</class>
+</hibernate-mapping>
