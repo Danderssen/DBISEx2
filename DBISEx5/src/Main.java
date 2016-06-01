@@ -3,15 +3,23 @@ public class Main {
 
 	public static void main(String[] args) 
 	{
-
+		
 		PersistenceManager p = PersistenceManager.getInstance();
-		
-		int t1 = p.beginTransaction();
-		int t2 = p.beginTransaction();
-		
-		p.write(t1, 1, "AAAAAAA");
-		p.write(t1, 2, "BBBBBBB");
-		p.commit(t1);
+		p.restore();
+		for(int i = 0; i < 5; ++i)
+		{
+			final int temp = i;
+			Thread t = new Thread(new Runnable() {
+
+				@Override
+				public void run() {
+					Client c = new Client(temp * 10, (temp + 1) * 10,"" + temp);
+					c.run();
+				}
+			});
+			t.start();
+		}
+
 	}
 
 }

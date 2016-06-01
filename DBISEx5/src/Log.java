@@ -8,7 +8,7 @@ public class Log {
 		tuple.lsn = ++latestLSN;
 		try
 		{
-			FileWriter f = new FileWriter("Log/" + latestLSN + ".txt");
+			FileWriter f = new FileWriter("Log/" + String.format("%06d", latestLSN) + ".txt");
 			f.write(latestLSN + "," + tuple.taID + "," + pageID + "," + tuple.userData);
 			f.close();
 		}
