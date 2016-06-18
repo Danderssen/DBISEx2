@@ -324,9 +324,8 @@ public class MovieService extends MovieServiceBase {
 	 * @return the DBCursor for the query
 	 */
 	public DBCursor getByTweetsKeywordRegex(String keyword, int limit) {
-		//TODO : implement
-		DBCursor result = null;
-		return result;
+		DBCursor results = movies.find(new BasicDBObject("tweets", new BasicDBObject("$exists", true)).append("tweets.text", Pattern.compile(".*" + keyword + ".*"))).limit(limit);
+		return results;
 	}
 
 	/**
@@ -375,8 +374,9 @@ public class MovieService extends MovieServiceBase {
 	 * @return the DBCursor for the query
 	 */
 	public DBCursor getNewestTweets(int limit) {
-		//TODO : implement
-		DBCursor result = null;
+		DBObject sort = new BasicDBObject("_id", -1);
+		DBCursor result = tweets.find().sort(sort).limit(limit);
+		
 		return result;
 	}
 
