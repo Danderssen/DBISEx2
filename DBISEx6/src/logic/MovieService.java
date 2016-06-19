@@ -64,9 +64,10 @@ public class MovieService extends MovieServiceBase {
 		if (movies.count() < 10000) {
 			createMovieData();
 		}
-
-		// TODO: Index Movie attributes "title", "rating", "votes", "tweets.coordinates"
-		//movies.ensureIndex(new BasicDBObject("title", ));
+		
+		movies.ensureIndex(new BasicDBObject("title", 1));
+		movies.ensureIndex(new BasicDBObject("rating", 1));
+		movies.ensureIndex(new BasicDBObject("votes", 1));
 		tweets.ensureIndex(new BasicDBObject("coordinates", "2dsphere"));
 	}
 
@@ -118,9 +119,9 @@ public class MovieService extends MovieServiceBase {
 	 * @return the DBCursor for the query
 	 */
 	public DBCursor getBestMovies(int minVotes, double minRating, int limit) {
-		
+		DBObject sort = new BasicDBObject("rating", -1);
 		DBCursor best = movies.find(new BasicDBObject("rating", new BasicDBObject("$gt", minRating))
-				.append("votes", new BasicDBObject("$gt", minVotes))).limit(limit);
+				.append("votes", new BasicDBObject("$gt", minVotes))).sort(sort).limit(limit);
 		
 		return best;
 	}
