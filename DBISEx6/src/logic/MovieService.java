@@ -406,7 +406,7 @@ public class MovieService extends MovieServiceBase {
 	 *            the longitude of the center point
 	 * @param radiusKm
 	 *            the radius to search in
-	 * @return
+	 * @return a DBCursor object 
 	 */
 	public DBCursor getTweetsNear(double lat, double lng, int radiusKm) {
 		DBObject pointQuery = new BasicDBObject("coordinates", new BasicDBObject("$near",
@@ -439,9 +439,16 @@ public class MovieService extends MovieServiceBase {
 	 * @return The retrieved GridFS File
 	 */
 	public GridFSDBFile getFile(String name) {
-		//TODO: implement
-		GridFSDBFile file = null;
-		return file;
+		GridFSDBFile file = fs.findOne(name);
+		
+		//System.out.println("Loading image: " + name);
+		
+		if (file != null) {
+			return file;
+		}
+		else {
+			return fs.findOne("sample.png");
+		}
 	}
 
 	/**
@@ -454,10 +461,15 @@ public class MovieService extends MovieServiceBase {
 	 * @param contentType
 	 */
 	public void saveFile(String name, InputStream inputStream, String contentType) {
-		GridFSInputFile gFile = null;
 		//Remove old versions
 		fs.remove(name);
-		//TODO: implement
+		
+		//System.out.println("Saving image: " + name);
+
+		GridFSInputFile gFile = fs.createFile(inputStream);
+		gFile.setFilename(name);
+		gFile.setContentType(contentType);
+		gFile.save();
 	}
 
 	// Given Helper Functions:
