@@ -44,7 +44,7 @@ public class RestServer {
 	 * handles REST API requests.
 	 */
 	public static void main(String[] args) throws Exception {
-		Server server = new Server(5900);
+		Server server = new Server(59000);
 		final MovieService ms = new MovieService();
 
 		// Serve static files
