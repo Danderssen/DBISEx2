@@ -16,20 +16,20 @@ import data.DB2ConnectionManager;
 public class WarehouseSale {
 	private int articleID;
 	private int shopID;
-	private Date date;
+	private int dateID;
 	private int sales;
 	private float revenue;
 	
-	public WarehouseSale(int articleID, int shopID, Date date, int sales, float revenue) 
+	public WarehouseSale(int articleID, int shopID, int dateID, int sales, float revenue) 
 	{
 		this.articleID = articleID;
 		this.shopID = shopID;
-		this.date = date;
+		this.dateID = dateID;
 		this.sales = sales;
 		this.revenue = revenue;
 	}
 
-	public static List<WarehouseSale> convertSales(List<CSVSale> sales, List<WarehouseArticle> articles, List<WarehouseShop> shops)
+	public static List<WarehouseSale> convertSales(List<CSVSale> sales, List<WarehouseDate> dates, List<WarehouseArticle> articles, List<WarehouseShop> shops)
 	{
 		List<WarehouseSale> list = new LinkedList<WarehouseSale>();
 		
@@ -41,27 +41,32 @@ public class WarehouseSale {
 		for (WarehouseShop a : shops)
 			shopMap.put(a.getShopName(), a);
 		
+		Map<Date, WarehouseDate> dateMap = new HashMap<>();
+		for (WarehouseDate a : dates)
+			dateMap.put(a.getDate(), a);
+		
 		for (CSVSale s : sales)
 		{
 			int articleID = articleMap.get(s.getArticle()).getArticleID();
 			int shopID = shopMap.get(s.getShop()).getShopID();
+			int dateID = dateMap.get(s.getDate()).getDateId();
 			
-			
-			WarehouseSale sale = new WarehouseSale(articleID, shopID, s.getDate(), s.getSales(), s.getRevenue());
+			WarehouseSale sale = new WarehouseSale(articleID, shopID, dateID, s.getSales(), s.getRevenue());
 			list.add(sale);
 		}		
 		return list;
 	}
+	
 	public void store()
 	{
 		try {
 			Connection con = DB2ConnectionManager.getInstance().getConnection();
 
 			// Erzeuge Anfrage
-			String selectSQL = "INSERT INTO SALE (Date, ShopID, ArticleID, Sales, Revenue) VALUES (?, ?, ?, ?, ?)";
+			String selectSQL = "INSERT INTO SALE (DATEID, ShopID, ArticleID, Sales, Revenue) VALUES (?, ?, ?, ?, ?)";
 			PreparedStatement pstmt = con.prepareStatement(selectSQL);
 
-			pstmt.setDate(0, new java.sql.Date( date.getTime()));
+			pstmt.setInt(0, dateID);
 			pstmt.setInt(1, shopID);
 			pstmt.setInt(2, articleID);
 			pstmt.setInt(3, sales);
@@ -92,12 +97,12 @@ public class WarehouseSale {
 		this.shopID = shopID;
 	}
 
-	public Date getDate() {
-		return date;
+	public int getDateId() {
+		return dateID;
 	}
 
-	public void setDate(Date date) {
-		this.date = date;
+	public void setDateId(int dateId) {
+		this.dateID = dateId;
 	}
 
 	public int getSales() {
@@ -115,8 +120,4 @@ public class WarehouseSale {
 	public void setRevenue(float revenue) {
 		this.revenue = revenue;
 	}
-	
-	
-	
-	
 }

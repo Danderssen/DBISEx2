@@ -2,6 +2,13 @@ package data;
 import java.util.Date;
 
 public class CSVSale {
+	
+	private Date date;
+	private String shop;
+	private String article;
+	private int sales;
+	private float revenue;
+	
 	public CSVSale(Date date, String shop, String article, int sales, float revenue) {
 		this.date = date;
 		this.shop = shop;
@@ -9,11 +16,7 @@ public class CSVSale {
 		this.sales = sales;
 		this.revenue = revenue;
 	}
-	public Date date;
-	public String shop;
-	public String article;
-	public int sales;
-	public float revenue;
+	
 	public Date getDate() {
 		return date;
 	}

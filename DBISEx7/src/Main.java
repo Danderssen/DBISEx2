@@ -1,6 +1,7 @@
 import java.util.List;
 
 import data.Article;
+import data.CSVLoader;
 import data.CSVSale;
 import data.Country;
 import data.ProductCategory;

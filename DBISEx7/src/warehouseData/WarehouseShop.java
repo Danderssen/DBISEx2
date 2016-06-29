@@ -44,7 +44,6 @@ public class WarehouseShop {
 		for (Country country : countries)
 			countryMap.put(country.getId(), country);
 
-		
 		List<WarehouseShop> list = new LinkedList<WarehouseShop>();
 		
 		for (Shop s : shops)
