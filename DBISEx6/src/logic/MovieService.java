@@ -64,9 +64,10 @@ public class MovieService extends MovieServiceBase {
 		if (movies.count() < 10000) {
 			createMovieData();
 		}
-
-		// TODO: Index Movie attributes "title", "rating", "votes", "tweets.coordinates"
-		//movies.ensureIndex(new BasicDBObject("title", ));
+		
+		movies.ensureIndex(new BasicDBObject("title", 1));
+		movies.ensureIndex(new BasicDBObject("rating", 1));
+		movies.ensureIndex(new BasicDBObject("votes", 1));
 		tweets.ensureIndex(new BasicDBObject("coordinates", "2dsphere"));
 	}
 
@@ -118,9 +119,9 @@ public class MovieService extends MovieServiceBase {
 	 * @return the DBCursor for the query
 	 */
 	public DBCursor getBestMovies(int minVotes, double minRating, int limit) {
-		
+		DBObject sort = new BasicDBObject("rating", -1);
 		DBCursor best = movies.find(new BasicDBObject("rating", new BasicDBObject("$gt", minRating))
-				.append("votes", new BasicDBObject("$gt", minVotes))).limit(limit);
+				.append("votes", new BasicDBObject("$gt", minVotes))).sort(sort).limit(limit);
 		
 		return best;
 	}
@@ -405,7 +406,7 @@ public class MovieService extends MovieServiceBase {
 	 *            the longitude of the center point
 	 * @param radiusKm
 	 *            the radius to search in
-	 * @return
+	 * @return a DBCursor object 
 	 */
 	public DBCursor getTweetsNear(double lat, double lng, int radiusKm) {
 		DBObject pointQuery = new BasicDBObject("coordinates", new BasicDBObject("$near",
@@ -438,9 +439,16 @@ public class MovieService extends MovieServiceBase {
 	 * @return The retrieved GridFS File
 	 */
 	public GridFSDBFile getFile(String name) {
-		//TODO: implement
-		GridFSDBFile file = null;
-		return file;
+		GridFSDBFile file = fs.findOne(name);
+		
+		//System.out.println("Loading image: " + name);
+		
+		if (file != null) {
+			return file;
+		}
+		else {
+			return fs.findOne("sample.png");
+		}
 	}
 
 	/**
@@ -453,10 +461,15 @@ public class MovieService extends MovieServiceBase {
 	 * @param contentType
 	 */
 	public void saveFile(String name, InputStream inputStream, String contentType) {
-		GridFSInputFile gFile = null;
 		//Remove old versions
 		fs.remove(name);
-		//TODO: implement
+		
+		//System.out.println("Saving image: " + name);
+
+		GridFSInputFile gFile = fs.createFile(inputStream);
+		gFile.setFilename(name);
+		gFile.setContentType(contentType);
+		gFile.save();
 	}
 
 	// Given Helper Functions:
