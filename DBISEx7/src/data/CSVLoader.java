@@ -1,6 +1,8 @@
 package data;
 import java.io.BufferedReader;
-import java.io.FileReader;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -15,10 +17,10 @@ public class CSVLoader {
 		
 		try
 		{
-			FileReader reader = new FileReader(path);
-			BufferedReader br = new BufferedReader(reader);
+		//	FileReader reader = new FileReader(path);
+			BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(path), "ISO-8859-1"));
 			String line = br.readLine();
-			SimpleDateFormat format = new SimpleDateFormat("dd.mm.yy");
+			SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy");
 			int count = 1;
 			while((line = br.readLine()) != null)
 			{
@@ -29,12 +31,22 @@ public class CSVLoader {
 						System.out.println("Split length is not 5! Line: " + count );
 						continue;
 					}
+				
+				boolean emptyCol = false;
+				for(String s : split)
+					if(s.equals(""))
+						emptyCol = true;
+				if (emptyCol)
+					continue;
+				
 				Date date;
 				int sales;
 				float revenue;
+
 				try
 				{
 					 date = format.parse(split[0]);
+
 				}
 				catch(ParseException e)
 				{
@@ -43,6 +55,7 @@ public class CSVLoader {
 				}
 				String shop = split[1];
 				String article = split[2];
+
 				try
 				{
 					 sales = Integer.parseInt(split[3]);
@@ -58,12 +71,12 @@ public class CSVLoader {
 				list.add(s);
 				
 			}
+			br.close();
 		}
 		catch (Exception e)
 		{
 	         e.printStackTrace();
 		}
-        		
 		return list;
 	}
 }

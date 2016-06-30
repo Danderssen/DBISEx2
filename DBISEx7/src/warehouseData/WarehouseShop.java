@@ -21,7 +21,8 @@ public class WarehouseShop {
 	private String regionName;
 	private String countryName;
 	private int	   shopID;
-	
+	private static PreparedStatement preparedStatement;
+	private static int batchCount = 0;
 	public WarehouseShop(String shopName, String cityName, String regionName, String countryName, int shopID) {
 		this.shopName = shopName;
 		this.cityName = cityName;
@@ -69,24 +70,60 @@ public class WarehouseShop {
 		try {
 			Connection con = DB2ConnectionManager.getInstance().getConnection();
 
-			// Erzeuge Anfrage
-			String selectSQL = "INSERT INTO SHOP (ShopID, ShopName, CityName, RegionName, CountryName) VALUES (?, ?, ?, ?, ?)";
-			PreparedStatement pstmt = con.prepareStatement(selectSQL);
+			if(preparedStatement == null)
+			{
+				String selectSQL = "MERGE INTO SHOP d (ShopID, ShopName, CityName, RegionName, CountryName) "+
+						 		    " USING (VALUES (?,?,?,?,?)) AS m (ShopID, ShopName, CityName, RegionName, CountryName) " +
+						 		    " ON d.SHOPID = m.SHOPID " + 
+						 		    " WHEN NOT MATCHED THEN " +
+						 		    " INSERT (ShopID, ShopName, CityName, RegionName, CountryName) "+
+						 		    " VALUES (m.ShopID, m.ShopName, m.CityName, m.RegionName, m.CountryName) " +
+						 		    " ELSE IGNORE ";
 
-			pstmt.setInt(0, shopID);
-			pstmt.setString(1, shopName);
-			pstmt.setString(2, cityName);
-			pstmt.setString(3, regionName);
-			pstmt.setString(4, countryName);
-			// Führe Anfrage aus
-			ResultSet rs = pstmt.executeQuery();
-			rs.close();
-			pstmt.close();
+			/*	String selectSQL = "insert into SALE_DATE (DATEID, DAY, MONTH, QUARTER, YEAR) " + 
+						  "select ?, ?, ?, ?, ? " + 
+						  "from SALE_DATE " +
+						  "where not exists (select * from SALE_DATE where DATEID = ?) ";*/
+				preparedStatement = con.prepareStatement(selectSQL);
+			}
+			
+	/*		// Erzeuge Anfrage
+			String selectSQL = "INSERT INTO SHOP (ShopID, ShopName, CityName, RegionName, CountryName) VALUES (?, ?, ?, ?, ?)";
+			PreparedStatement pstmt = con.prepareStatement(selectSQL);*/
+
+			preparedStatement.setInt(1, shopID);
+			preparedStatement.setString(2, shopName);
+			preparedStatement.setString(3, cityName);
+			preparedStatement.setString(4, regionName);
+			preparedStatement.setString(5, countryName);
+
+			preparedStatement.addBatch();
+
+			if(batchCount > 100)
+			{
+				preparedStatement.executeBatch();
+				preparedStatement.clearBatch();
+				batchCount = 0;
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		
 	}
+	
+	public static void closeStatement()
+	{
+		System.out.println("closing date statement");
+		try {
+			Connection con = DB2ConnectionManager.getInstance().getConnection();
+			preparedStatement.executeBatch();
+			//con.commit();
+			preparedStatement.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
 
 	public String getShopName() {
 		return shopName;

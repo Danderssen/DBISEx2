@@ -21,6 +21,9 @@ public class WarehouseDate {
 	private int quarter;
 	private int year;
 	
+	private static PreparedStatement preparedStatement;
+	private static int batchCount = 0;
+	
 	public WarehouseDate(Date date) {
 		this.date = date;
 		
@@ -59,22 +62,62 @@ public class WarehouseDate {
 			Connection con = DB2ConnectionManager.getInstance().getConnection();
 
 			// Erzeuge Anfrage
-			String selectSQL = "INSERT INTO SALE_DATE (DATEID, DAY, MONTH, QUARTER, YEAR) VALUES (?, ?, ?, ?, ?)";
-			PreparedStatement pstmt = con.prepareStatement(selectSQL);
+			//String selectSQL = "INSERT INTO SALE_DATE (DATEID, DAY, MONTH, QUARTER, YEAR) VALUES (?, ?, ?, ?, ?) where not exists (select * from SALE_DATE where DATEID = ?)";
+		//	String selectSQL = "IF NOT EXISTS (select 1 from SALE_DATE where DATEID = ?) BEGIN INSERT INTO SALE_DATE (DATEID, DAY, MONTH, QUARTER, YEAR) VALUES (?, ?, ?, ?, ?) END";
+			/*String selectSQL = "insert into SALE_DATE (DATEID, DAY, MONTH, QUARTER, YEAR) " + 
+								  "select ?, ?, ?, ?, ? " + 
+								  "from SALE_DATE " +
+								  "where not exists (select * from SALE_DATE where DATEID = ?) ";*/
+			
+			if(preparedStatement == null)
+			{
+				String selectSQL = "MERGE INTO SALE_DATE d (DATEID, DAY, MONTH, QUARTER, YEAR) "+
+						 		    " USING (VALUES (?,?,?,?,?)) AS m (DATEID, DAY, MONTH, QUARTER, YEAR) " +
+						 		    " ON d.DATEID = m.DATEID " + 
+						 		    " WHEN NOT MATCHED THEN " +
+						 		    " INSERT (DATEID, DAY, MONTH, QUARTER, YEAR) "+
+						 		    " VALUES (m.DATEID, m.DAY, m.MONTH, m.QUARTER, m.YEAR) " +
+						 		    " ELSE IGNORE ";
 
-			pstmt.setInt(0, dateID);
-			pstmt.setInt(1, day);
-			pstmt.setInt(2, month);
-			pstmt.setInt(3, quarter);
-			pstmt.setInt(4, year);
+			/*	String selectSQL = "insert into SALE_DATE (DATEID, DAY, MONTH, QUARTER, YEAR) " + 
+						  "select ?, ?, ?, ?, ? " + 
+						  "from SALE_DATE " +
+						  "where not exists (select * from SALE_DATE where DATEID = ?) ";*/
+				preparedStatement = con.prepareStatement(selectSQL);
+			}
+			++batchCount;
+			preparedStatement.setInt(1, dateID);
+			preparedStatement.setInt(2, day);
+			preparedStatement.setInt(3, month);
+			preparedStatement.setInt(4, quarter);
+			preparedStatement.setInt(5, year);
 			// Führe Anfrage aus
-			ResultSet rs = pstmt.executeQuery();
-			rs.close();
-			pstmt.close();
+			preparedStatement.addBatch();
+
+			if(batchCount > 1000)
+			{
+				System.out.println("Executing batch");
+				int[] result = preparedStatement.executeBatch();
+				preparedStatement.clearBatch();
+				batchCount = 0;
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		
+	}
+	
+	public static void closeStatement()
+	{
+		System.out.println("closing date statement");
+		try {
+			Connection con = DB2ConnectionManager.getInstance().getConnection();
+			preparedStatement.executeBatch();
+			//con.commit();
+			preparedStatement.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public Date getDate() {
@@ -86,7 +129,7 @@ public class WarehouseDate {
 	}
 	
 	public int getDateId() {
-		return day;
+		return dateID;
 	}
 
 	public int getMonth() {

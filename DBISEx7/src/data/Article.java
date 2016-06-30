@@ -1,9 +1,11 @@
 package data;
 
+import java.io.UnsupportedEncodingException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -34,6 +36,17 @@ public class Article {
 			// Führe Anfrage aus
 			ResultSet rs = pstmt.executeQuery();
 			while (rs.next()) {
+				if(rs.getString("NAME").contains("Lavatherm"))
+					System.out.println(rs.getString("NAME"));
+				/*String name = new String();
+				try
+				{
+					name = Arrays.toString(rs.getString("NAME").getBytes("ISO-8859-1"));
+				}
+				catch(UnsupportedEncodingException e)
+				{
+					System.out.println(e.getMessage());
+				}*/
 				Article pc = new Article(rs.getInt("ArticleID"), rs.getInt("ProductGroupID"), rs.getString("NAME"), rs.getFloat("PREIS"));
 				list.add(pc);
 			}

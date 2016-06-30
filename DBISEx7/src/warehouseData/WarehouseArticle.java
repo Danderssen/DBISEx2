@@ -9,11 +9,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import data.ProductGroup;
-import data.ProductCategory;
-import data.ProductFamily;
 import data.Article;
 import data.DB2ConnectionManager;
+import data.ProductCategory;
+import data.ProductFamily;
+import data.ProductGroup;
 
 public class WarehouseArticle {
 	
@@ -22,6 +22,8 @@ public class WarehouseArticle {
 	private String productFamilyName;
 	private String productCategoryName;
 	private int    articleID;
+	private static PreparedStatement preparedStatement;
+	private static int batchCount = 0;
 	
 	public WarehouseArticle(String articleName, String productGroupName, String productFamilyName,
 			String productCategoryName, int articleID) {
@@ -32,7 +34,7 @@ public class WarehouseArticle {
 		this.articleID = articleID;
 	}
 
-	public static List<WarehouseArticle> convertShops(List<Article> articles, List<ProductGroup> productGroups, List<ProductFamily> productFamilies, List<ProductCategory> productCategories)
+	public static List<WarehouseArticle> convertArticles(List<Article> articles, List<ProductGroup> productGroups, List<ProductFamily> productFamilies, List<ProductCategory> productCategories)
 	{
 		Map<Integer, ProductGroup> productGroupMap = new HashMap<Integer, ProductGroup>();
 		for (ProductGroup city : productGroups)
@@ -74,24 +76,57 @@ public class WarehouseArticle {
 		try {
 			Connection con = DB2ConnectionManager.getInstance().getConnection();
 
-			// Erzeuge Anfrage
-			String selectSQL = "INSERT INTO ARTICLE (ArticleID, ArticleName, ProductGroupName, ProductFamilyName, ProductCategoryName) VALUES (?, ?, ?, ?, ?)";
-			PreparedStatement pstmt = con.prepareStatement(selectSQL);
+			if(preparedStatement == null)
+			{
+				String selectSQL = "MERGE INTO ARTICLE d (ARTICLEID, ArticleName, ProductGroupName, ProductFamilyName, ProductCategoryName) "+
+						 		    " USING (VALUES (?,?,?,?,?)) AS m (ARTICLEID, ArticleName, ProductGroupName, ProductFamilyName, ProductCategoryName) " +
+						 		    " ON d.ARTICLEID = m.ARTICLEID " + 
+						 		    " WHEN NOT MATCHED THEN " +
+						 		    " INSERT (ARTICLEID, ArticleName, ProductGroupName, ProductFamilyName, ProductCategoryName) "+
+						 		    " VALUES (m.ARTICLEID, m.ARTICLENAME, m.ProductGroupName, m.ProductFamilyName, m.ProductCategoryName) " +
+						 		    " ELSE IGNORE ";
 
-			pstmt.setInt(0, articleID);
-			pstmt.setString(1, articleName);
-			pstmt.setString(2, productGroupName);
-			pstmt.setString(3, productFamilyName);
-			pstmt.setString(4, productCategoryName);
-			// Führe Anfrage aus
-			ResultSet rs = pstmt.executeQuery();
-			rs.close();
-			pstmt.close();
+			/*	String selectSQL = "insert into SALE_DATE (DATEID, DAY, MONTH, QUARTER, YEAR) " + 
+						  "select ?, ?, ?, ?, ? " + 
+						  "from SALE_DATE " +
+						  "where not exists (select * from SALE_DATE where DATEID = ?) ";*/
+				preparedStatement = con.prepareStatement(selectSQL);
+			}
+			
+			++batchCount;
+			preparedStatement.setInt(1, articleID);
+			preparedStatement.setString(2, articleName);
+			preparedStatement.setString(3, productGroupName);
+			preparedStatement.setString(4, productFamilyName);
+			preparedStatement.setString(5, productCategoryName);
+
+			preparedStatement.addBatch();
+
+			if(batchCount > 100)
+			{
+				preparedStatement.executeBatch();
+				preparedStatement.clearBatch();
+				batchCount = 0;
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		
 	}
+	
+	public static void closeStatement()
+	{
+		System.out.println("closing date statement");
+		try {
+			Connection con = DB2ConnectionManager.getInstance().getConnection();
+			preparedStatement.executeBatch();
+			//con.commit();
+			preparedStatement.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
 
 	public String getArticleName() {
 		return articleName;
