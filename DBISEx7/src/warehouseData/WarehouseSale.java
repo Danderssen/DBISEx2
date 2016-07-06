@@ -12,7 +12,6 @@ import java.util.Map;
 
 import data.CSVSale;
 import data.DB2ConnectionManager;
-import data.WarehouseSale;
 
 public class WarehouseSale {
 	private int articleID;
